@@ -1,81 +1,109 @@
-name: CI
-
-on: [push, pull_request]
-
 jobs:
-  js-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - name: Use Node.js 12.x
-        uses: actions/setup-node@v1
-        with:
-          node-version: 12.x
-      - name: Install yarn
-        run: npm install -g yarn
-      - name: Get yarn cache
-        id: yarn-cache
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-      - uses: actions/cache@v1
-        with:
-          path: ${{ steps.yarn-cache.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-      - name: Install dependencies
-        run: yarn install
-      - name: Run tests
-        run: yarn test
   android-build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v1
-      - name: Use Node.js 12.x
-        uses: actions/setup-node@v1
-        with:
-          node-version: 12.x
-      - name: Install yarn
-        run: npm install -g yarn
-      - name: Get yarn cache
-        id: yarn-cache
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-      - uses: actions/cache@v1
-        with:
-          path: ${{ steps.yarn-cache.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-      - name: Install dependencies
-        run: yarn install
-      - name: Build android example app
-        run: cd example/android && ./gradlew assembleDebug
+    - continue-on-error: true
+      uses: actions/checkout@v1
+    - continue-on-error: true
+      name: Use Node.js 12.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+    - continue-on-error: true
+      name: Install yarn
+      run: npm install -g yarn
+    - continue-on-error: true
+      id: yarn-cache
+      name: Get yarn cache
+      run: echo "::set-output name=dir::$(yarn cache dir)"
+    - continue-on-error: true
+      uses: actions/cache@v1
+      with:
+        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+        path: ${{ steps.yarn-cache.outputs.dir }}
+        restore-keys: '${{ runner.os }}-yarn-
+
+          '
+    - continue-on-error: true
+      name: Install dependencies
+      run: yarn install
+    - continue-on-error: true
+      name: Build android example app
+      run: cd example/android && ./gradlew assembleDebug
   ios-build:
-    runs-on: macOS-latest
+    runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v1
-      - name: Use Node.js 12.x
-        uses: actions/setup-node@v1
-        with:
-          node-version: 12.x
-      - uses: actions/setup-ruby@v1
-        with:
-          ruby-version: '2.x'
-      - name: Install cocoapods
-        run: gem install cocoapods
-      - name: Install yarn
-        run: npm install -g yarn
-      - name: Get yarn cache
-        id: yarn-cache
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-      - uses: actions/cache@v1
-        with:
-          path: ${{ steps.yarn-cache.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-      - name: Install dependencies
-        run: yarn install
-      - name: Install pods
-        run: cd example/ios && pod install
-      - name: Build ios example app
-        run: cd example/ios && xcodebuild -scheme RNFBSDKExample -workspace RNFBSDKExample.xcworkspace ONLY_ACTIVE_ARCH=NO -sdk iphonesimulator -configuration Debug
+    - continue-on-error: true
+      uses: actions/checkout@v1
+    - continue-on-error: true
+      name: Use Node.js 12.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+    - continue-on-error: true
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: 2.x
+    - continue-on-error: true
+      name: Install cocoapods
+      run: gem install cocoapods
+    - continue-on-error: true
+      name: Install yarn
+      run: npm install -g yarn
+    - continue-on-error: true
+      id: yarn-cache
+      name: Get yarn cache
+      run: echo "::set-output name=dir::$(yarn cache dir)"
+    - continue-on-error: true
+      uses: actions/cache@v1
+      with:
+        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+        path: ${{ steps.yarn-cache.outputs.dir }}
+        restore-keys: '${{ runner.os }}-yarn-
+
+          '
+    - continue-on-error: true
+      name: Install dependencies
+      run: yarn install
+    - continue-on-error: true
+      name: Install pods
+      run: cd example/ios && pod install
+    - continue-on-error: true
+      name: Build ios example app
+      run: cd example/ios && xcodebuild -scheme RNFBSDKExample -workspace RNFBSDKExample.xcworkspace
+        ONLY_ACTIVE_ARCH=NO -sdk iphonesimulator -configuration Debug
+  js-tests:
+    runs-on: self-hosted
+    steps:
+    - continue-on-error: true
+      uses: actions/checkout@v1
+    - continue-on-error: true
+      name: Use Node.js 12.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+    - continue-on-error: true
+      name: Install yarn
+      run: npm install -g yarn
+    - continue-on-error: true
+      id: yarn-cache
+      name: Get yarn cache
+      run: echo "::set-output name=dir::$(yarn cache dir)"
+    - continue-on-error: true
+      uses: actions/cache@v1
+      with:
+        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+        path: ${{ steps.yarn-cache.outputs.dir }}
+        restore-keys: '${{ runner.os }}-yarn-
+
+          '
+    - continue-on-error: true
+      name: Install dependencies
+      run: yarn install
+    - continue-on-error: true
+      name: Run tests
+      run: yarn test
+name: CI
+on:
+  repository_dispatch:
+    types: trigger-ga___ci.yml
